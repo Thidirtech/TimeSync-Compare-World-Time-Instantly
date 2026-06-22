@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TimeSync – Compare World Time Instantly</title>
+
+<style>
+:root{
+    --bg:#f8fafc;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --border:#e2e8f0;
+    --primary:#2563eb;
+}
+
+body.dark{
+    --bg:#0f172a;
+    --card:#1e293b;
+    --text:#f8fafc;
+    --muted:#94a3b8;
+    --border:#334155;
+}
+
+body{
+    margin:0;
+    font-family:system-ui;
+    background:var(--bg);
+    color:var(--text);
+    transition:0.3s;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+    padding:30px;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+button{
+    padding:10px 14px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    background:var(--primary);
+    color:white;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    margin-top:20px;
+}
+
+.card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:15px;
+    padding:20px;
+}
+
+.time{
+    font-size:36px;
+    font-weight:700;
+    margin-top:10px;
+}
+
+.small{
+    color:var(--muted);
+}
+
+select{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    border-radius:10px;
+}
+
+.tools{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+    flex-wrap:wrap;
+}
+
+.overlap{
+    margin-top:20px;
+    padding:15px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+    <div>
+         <h2>TimeSync – Compare World Time Instantly</h2>
+<p>Compare global timezones, view live world clocks</p>
+    </div>
+
+<button onclick="toggleDark()">🌙 Dark Mode</button>
+</div>
+
+<div class="grid">
+
+<div class="card">
+<h3>Timezone A</h3>
+<select id="tzA"></select>
+<div class="time" id="timeA"></div>
+<div class="small" id="dateA"></div>
+</div>
+
+<div class="card">
+<h3>Timezone B</h3>
+<select id="tzB"></select>
+<div class="time" id="timeB"></div>
+<div class="small" id="dateB"></div>
+</div>
+
+</div>
+
+<div class="tools">
+<button onclick="addClock()">➕ Add Clock</button>
+</div>
+
+<div id="extraClocks"></div>
+
+</div>
+
+<script>
+
+/* clean timezone set */
+const zones = [
+"Asia/Kolkata (IST)",
+"UTC",
+"America/New_York (EST)",
+"America/Los_Angeles (PST)",
+"Europe/London (GMT)",
+"Europe/Paris (CET)",
+"Asia/Tokyo (JST)"
+];
+
+const map = {
+"Asia/Kolkata (IST)":"Asia/Kolkata",
+"UTC":"UTC",
+"America/New_York (EST)":"America/New_York",
+"America/Los_Angeles (PST)":"America/Los_Angeles",
+"Europe/London (GMT)":"Europe/London",
+"Europe/Paris (CET)":"Europe/Paris",
+"Asia/Tokyo (JST)":"Asia/Tokyo"
+};
+
+/* fill selects */
+function fill(select){
+zones.forEach(z=>{
+let o=document.createElement("option");
+o.value=z;
+o.textContent=z;
+select.appendChild(o);
+});
+}
+
+fill(document.getElementById("tzA"));
+fill(document.getElementById("tzB"));
+
+document.getElementById("tzA").value="Asia/Kolkata (IST)";
+document.getElementById("tzB").value="America/New_York (EST)";
+
+/* time format */
+function get(zone){
+const now=new Date();
+const real=map[zone];
+
+return {
+time:new Intl.DateTimeFormat('en-GB',{
+timeZone:real,
+hour:'2-digit',
+minute:'2-digit',
+second:'2-digit'
+}).format(now),
+
+date:new Intl.DateTimeFormat('en-GB',{
+timeZone:real,
+weekday:'long',
+year:'numeric',
+month:'long',
+day:'numeric'
+}).format(now)
+};
+}
+
+/* update main */
+function update(){
+
+let A=document.getElementById("tzA").value;
+let B=document.getElementById("tzB").value;
+
+let a=get(A);
+let b=get(B);
+
+document.getElementById("timeA").textContent=a.time;
+document.getElementById("timeB").textContent=b.time;
+
+document.getElementById("dateA").textContent=a.date;
+document.getElementById("dateB").textContent=b.date;
+}
+
+document.getElementById("tzA").onchange=update;
+document.getElementById("tzB").onchange=update;
+
+/* extra clocks */
+function addClock(){
+let div=document.createElement("div");
+div.className="card";
+
+let sel=document.createElement("select");
+fill(sel);
+sel.value="UTC";
+
+let t=document.createElement("div");
+t.className="time";
+
+let d=document.createElement("div");
+d.className="small";
+
+div.appendChild(sel);
+div.appendChild(t);
+div.appendChild(d);
+
+document.getElementById("extraClocks").appendChild(div);
+
+sel.onchange=()=>render();
+render();
+
+function render(){
+let v=get(sel.value);
+t.textContent=v.time;
+d.textContent=v.date;
+}
+}
+
+
+/* dark mode */
+function toggleDark(){
+document.body.classList.toggle("dark");
+}
+
+/* auto refresh */
+function tick(){
+update();
+document.querySelectorAll("#extraClocks select").forEach(sel=>{
+sel.onchange();
+});
+}
+
+setInterval(tick,1000);
+update();
+
+</script>
+
+</body>
+</html>

@@ -7,7 +7,7 @@ pipeline{
 
        environment {
         REPO_URL  = 'https://github.com/Thidirtech/TimeSync-Compare-World-Time-Instantly.git'
-        TARGET_DIR = '/var/Timesync/html'
+        TARGET_DIR = 'TARGET_DIR = '/home/jenkins/timesync/html'
         PORT = '9090'
     }
 

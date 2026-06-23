@@ -7,7 +7,7 @@ pipeline{
 
        environment {
         REPO_URL  = 'https://github.com/Thidirtech/TimeSync-Compare-World-Time-Instantly.git'
-        TARGET_DIR = '/home/jenkins/timesync/html'
+        TARGET_DIR = '/opt/jenkins/timesync/html'
         PORT = '9090'
     }
 
@@ -30,9 +30,8 @@ pipeline{
           stage("Start Python Web Server") {
             steps {
                 sh '''
-                    fuser -k 9090/tcp || true
                     cd ${TARGET_DIR}
-                    nohup python3 -m http.server ${PORT} > python_server.log 2>&1 &
+                    sudo systemctl restart timesync
                 '''
             }
         }

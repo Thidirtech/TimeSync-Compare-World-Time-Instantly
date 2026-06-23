@@ -24,7 +24,7 @@ pipeline{
                 sh '''
                     mkdir -p ${TARGET_DIR}
                     cp index.html ${TARGET_DIR}
-                ''''
+                '''
             }
         }
           stage("Start Python Web Server") {
